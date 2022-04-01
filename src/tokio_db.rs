@@ -7,7 +7,6 @@ struct DB {
     client: Client,
 }
 
-
 impl DB {
     pub async fn new() -> Result<Self, Error> {
         let user = env::var("POSTGRES_USER").unwrap();

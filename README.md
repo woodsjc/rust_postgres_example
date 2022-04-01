@@ -4,7 +4,8 @@ Just learning rust and postgres. Trying out tokio and async to start. Will try
 some of the other libraries as well
 
 Todo:
-- [ ] [postgres mapper](https://github.com/toidiu/postgres-mapper)
+- [x] [postgres mapper](https://github.com/toidiu/postgres-mapper)
+  - doesn't work with datetime
 - [ ] [sqlx](https://github.com/launchbadge/sqlx/)
 - [ ] async std
 - [ ] actix
