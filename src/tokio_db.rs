@@ -1,5 +1,5 @@
 use chrono::prelude::{DateTime, Utc};
-use std::{env, fmt, time::SystemTime};
+use std::{fmt, time::SystemTime};
 use tokio_postgres::{NoTls, Error, Client, Row};
 
 
@@ -8,10 +8,7 @@ struct DB {
 }
 
 impl DB {
-    pub async fn new() -> Result<Self, Error> {
-        let user = env::var("POSTGRES_USER").unwrap();
-        let pw = env::var("POSTGRES_PASSWORD").unwrap();
-        let conn_str = format!("postgres://{}:{}@localhost/postgres", user, pw);
+    pub async fn new(conn_str: &str) -> Result<Self, Error> {
         let (client, connection) = tokio_postgres::connect(&conn_str, NoTls).await?;
 
         tokio::spawn(async move {
@@ -61,8 +58,8 @@ impl From<&Row> for Clients {
     }
 }
 
-pub async fn tokio_db() -> Result<(), Error> {
-    let db = DB::new().await?;
+pub async fn tokio_db(conn_str: &str) -> Result<(), Error> {
+    let db = DB::new(conn_str).await?;
 
     db.create_table(
         "clients",

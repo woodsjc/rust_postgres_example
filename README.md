@@ -6,10 +6,8 @@ some of the other libraries as well
 Todo:
 - [x] [postgres mapper](https://github.com/toidiu/postgres-mapper)
   - doesn't work with datetime
-- [ ] [sqlx](https://github.com/launchbadge/sqlx/)
-- [ ] async std
-- [ ] actix
-- [ ] bulk insert
+- [x] [sqlx](https://github.com/launchbadge/sqlx/)
+- [x] [bulk insert](https://www.postgresql.org/docs/current/populate.html)
   - async & sync
   - csv & prepared statements
 

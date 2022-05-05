@@ -1,4 +1,3 @@
-use std::env;
 use chrono::NaiveDateTime;
 use sqlx::{Error, Pool, Postgres, postgres::PgPoolOptions};
 
@@ -8,10 +7,7 @@ struct SqlxDB {
 }
 
 impl SqlxDB {
-    pub async fn new() -> Result<Self, Error> {
-        let user = env::var("POSTGRES_USER").unwrap();
-        let pw = env::var("POSTGRES_PASSWORD").unwrap();
-        let conn_str = format!("postgres://{}:{}@localhost/postgres", user, pw);
+    pub async fn new(conn_str: &str) -> Result<Self, Error> {
         let pool = PgPoolOptions::new()
             .max_connections(10)
             .connect(&conn_str).await?;
@@ -27,8 +23,8 @@ impl SqlxDB {
     }
 }
 
-pub async fn sqlx_db() -> Result<(), Error> {
-    let db = SqlxDB::new().await?;
+pub async fn sqlx_db(conn_str: &str) -> Result<(), Error> {
+    let db = SqlxDB::new(conn_str).await?;
 
     db.create_table(
         "clients",
@@ -58,6 +54,29 @@ INSERT INTO clients (name) VALUES
     for r in rows.iter() {
         println!("{}, {}, {}, {}", r.0, r.1, r.2, r.3);
     }
+
+    //copying (bulk)
+    println!("Copying table to server");
+    sqlx::query("
+COPY clients
+    TO '/tmp/clients.csv'
+    WITH CSV HEADER
+;")
+        .execute(&db.pool)
+        .await?;
+
+    println!("Loading table to clients_backup");
+    //first create table if not exists
+    sqlx::query("DROP TABLE IF EXISTS clients_backup;").execute(&db.pool).await?;
+    sqlx::query("CREATE TABLE clients_backup (LIKE clients INCLUDING DEFAULTS);").execute(&db.pool).await?;
+
+    sqlx::query("
+COPY clients_backup
+    FROM '/tmp/clients.csv'
+    WITH CSV HEADER
+;")
+        .execute(&db.pool)
+        .await?;
 
     Ok(())
 }
